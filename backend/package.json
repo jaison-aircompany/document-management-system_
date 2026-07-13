@@ -17,6 +17,8 @@
   "license": "MIT",
   "dependencies": {
     "express": "5.2.1",
-    "multer": "2.2.0"
+    "mime-types": "^3.0.2",
+    "multer": "2.2.0",
+    "uuid": "^14.0.1"
   }
 }

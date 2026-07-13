@@ -11,14 +11,31 @@
 // usando multer com diskStorage. Não utilize provedores externos.
 
 const express = require('express');
+const path = require('path');
+
+// Importar camadas
+const DocumentRepository = require('./repositories/DocumentRepository');
+const DocumentService = require('./services/DocumentService');
+const DocumentController = require('./controllers/DocumentController');
+const createDocumentRouter = require('./routes/documentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(express.json());
 
-// Endpoint de verificação de saúde. As demais rotas (/upload, /documents,
-// /documents/:id/download) serão implementadas durante o Passo 2.
+// Inicializar dependências (injeção simples)
+const storageDir = process.env.STORAGE_DIR || path.join(__dirname, '../storage');
+const documentRepository = new DocumentRepository(storageDir);
+const documentService = new DocumentService(documentRepository);
+const documentController = new DocumentController(documentService);
+
+// Registrar router de documentos com prefixo /api
+const documentRouter = createDocumentRouter(documentController);
+app.use('/api', documentRouter);
+
+// Endpoint de verificação de saúde
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -26,6 +43,7 @@ app.get('/health', (req, res) => {
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`DMS backend ouvindo na porta ${PORT}`);
+    console.log(`Storage: ${storageDir}`);
   });
 }
 
